@@ -13,7 +13,9 @@ class UserHandler
         if (!empty($_SESSION['token'])) {
             $token = $_SESSION['token'];
 
-            $data = User::select()->where('token', $token)->one();
+            $data = User::select()
+                ->where('token', $token)
+                ->one();
 
             if (count($data) > 0) {
                 $loggedUser = new User();
@@ -34,9 +36,12 @@ class UserHandler
 
         if ($user) {
             if (password_verify($password, $user['password'])) {
-                $token = md5(time().rand(0, 9999).time());
+                $token = md5(time() . rand(0, 9999) . time());
 
-                User::update()->set('token', $token)->where('email', $email)->execute();
+                User::update()
+                    ->set('token', $token)
+                    ->where('email', $email)
+                    ->execute();
 
                 return $token;
             }
@@ -116,7 +121,7 @@ class UserHandler
     public static function addUser($name, $email, $password, $birthdate)
     {
         $hash = password_hash($password, PASSWORD_DEFAULT);
-        $token = md5(time().rand(0, 9999).time());
+        $token = md5(time() . rand(0, 9999) . time());
 
         User::insert([
             'email' => $email,
@@ -141,5 +146,40 @@ class UserHandler
         }
         return false;
     }
-}
 
+    public static function follow($from, $to)
+    {
+        // Verifica se a relação já existe para evitar duplicados
+        $exists = UserRelation::select('id')
+            ->where('user_from', $from)
+            ->where('user_to', $to)
+            ->get();
+
+        if (empty($exists)) {
+            UserRelation::insert([
+                'user_from' => $from,
+                'user_to' => $to
+            ])->execute();
+        }
+    }
+
+    public static function unfollow($from, $to)
+    {
+        // Remove a relação específica
+        UserRelation::delete()
+            ->where('user_from', $from)
+            ->where('user_to', $to)
+            ->limit(1) // Garante que apenas uma linha seja afetada
+            ->execute();
+    }
+
+    public static function getFollowersCount($userId)
+    {
+        // Retorna a contagem de seguidores
+        $result = UserRelation::select('COUNT(*) as count')
+            ->where('user_to', $userId)
+            ->get();
+
+        return $result[0]['count'] ?? 0;
+    }
+}

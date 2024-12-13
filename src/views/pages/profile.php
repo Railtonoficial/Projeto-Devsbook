@@ -22,20 +22,19 @@
 
                             <?php if ($user->id != $loggedUser->id) : ?>
                                 <div class="profile-info-item m-width-20">
-                                    <?php if ($isFollowing) : ?>
-                                        <a href="" class="button follow-button">Deixar de Seguir</a>
-                                    <? else : ?>
-                                        <a href="" class="button follow-button">Seguir</a>
-                                    <? endif; ?>
+                                    <a href="<?= $base; ?>/perfil/<?= $user->id; ?>/follow"
+                                       class="button follow-button">
+                                        <?= (!$isFollowing) ? 'Seguir' : 'Deixar de Seguir'; ?>
+                                    </a>
                                 </div>
-                            <? endif; ?>
+                            <?php endif; ?>
 
                             <div class="profile-info-item m-width-20">
-                                <div class="profile-info-item-n"><?= count($user->followers); ?></div>
+                                <div class="profile-info-item-n"><?= $followersCount; ?></div>
                                 <div class="profile-info-item-s">Seguidores</div>
                             </div>
                             <div class="profile-info-item m-width-20">
-                                <div class="profile-info-item-n"><?= count($user->followers); ?></div>
+                                <div class="profile-info-item-n"><?= $followingCount; ?></div>
                                 <div class="profile-info-item-s">Seguindo</div>
                             </div>
                             <div class="profile-info-item m-width-20">

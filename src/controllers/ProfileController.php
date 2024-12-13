@@ -54,7 +54,27 @@ class ProfileController extends Controller
             'loggedUser' => $this->loggedUser,
             'user' => $user,
             'feed' => $feed,
-            'isFollowing' => $isFollowing
+            'isFollowing' => $isFollowing,
+            'followersCount' => count($user->followers),
+            'followingCount' => count($user->following)
         ]);
+    }
+
+
+    public function follow($atts)
+    {
+        $to = intval($atts['id']);
+
+        if (UserHandler::idExists($to)) {
+
+            if (UserHandler::isFollowing($this->loggedUser->id, $to)) {
+                UserHandler::unfollow($this->loggedUser->id, $to);
+            } else {
+                UserHandler::follow($this->loggedUser->id, $to);
+            }
+
+        }
+
+        $this->redirect('/perfil/' . $to);
     }
 }
