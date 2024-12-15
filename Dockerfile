@@ -20,5 +20,7 @@ COPY . /var/www/html/
 # Definir o diretório de trabalho
 WORKDIR /var/www/html/
 
-# Configurar permissões
-RUN chown -R www-data:www-data /var/www/html/
+# Configurar permissões para uploads
+RUN mkdir -p /var/www/html/media/uploads \
+    && chown -R www-data:www-data /var/www/html/media/uploads \
+    && chmod -R 775 /var/www/html/media/uploads
