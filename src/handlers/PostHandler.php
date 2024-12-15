@@ -1,4 +1,5 @@
 <?php
+
 namespace src\handlers;
 
 use \src\models\Post;
@@ -125,7 +126,7 @@ class PostHandler
             ->count();
         $pageCount = ceil($total / $perPage);
 
-        //$posts = self::_postListToObject($postList, $loggedUserId);
+
         $postHandler = new self();
         $posts = $postHandler->_postListToObject($postList, $loggedUserId);
 
@@ -140,7 +141,6 @@ class PostHandler
     {
         $perPage = 2;
 
-        //1. Pegar lista  de usuários que Eu sigo.
         $userList = UserRelation::select()
             ->where('user_from', $idUser)
             ->get();
@@ -150,7 +150,7 @@ class PostHandler
         }
         $users[] = $idUser;
 
-        //2. Pegar os posts dessa galera ordenado pela data.
+
         $postList = Post::select()
             ->where('id_user', 'in', $users)
             ->orderBy('created_at', 'desc')
@@ -162,8 +162,6 @@ class PostHandler
             ->count();
         $pageCount = ceil($total / $perPage);
 
-        //3. Transformar o resultado em objetos dos models.
-        //$posts = self::_postListToObject($postList, $idUser);
         $postHandler = new self();
         $posts = $postHandler->_postListToObject($postList, $idUser);
 
@@ -192,5 +190,33 @@ class PostHandler
             $photos[] = $newPost;
         }
         return $photos;
+    }
+
+    public static function delete($id, $loggedUserId)
+    {
+
+        $post = Post::select()
+            ->where('id', $id)
+            ->where('id_user', $loggedUserId)
+            ->get();
+
+        if (count($post) > 0) {
+            $post = $post[0];
+
+
+            PostLike::delete()->where('id_post', $id)->execute();
+            PostComment::delete()->where('id_post', $id)->execute();
+
+
+            if ($post['type'] === 'photo') {
+                $img = __DIR__ . '/../../public/media/uploads/' . $post['body'];
+                if (file_exists($img)) {
+                    unlink($img);
+                }
+            }
+
+
+            Post::delete()->where('id', $id)->execute();
+        }
     }
 }

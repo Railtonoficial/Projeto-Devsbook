@@ -29,12 +29,51 @@
     flex:1;
 }
 .feed-item-head-btn {
-    margin-right:5px;
+    margin-right: 5px;
     cursor: pointer;
+    display: inline-block;
+    position: relative;
+    padding: 0;
+    width: auto;
+    height: auto;
 }
+
 .feed-item-head-btn img {
     width:20px;
     height:20px;
+}
+
+.feed-item-more-window {
+    position: absolute;
+    background-color: #FFF;
+    padding: 3px;
+    border: 1px solid #EEE;
+    border-radius: 3px;
+    display: none;
+    width: auto;
+    height: auto;
+    margin-left: -33px;
+}
+
+.feed-item-more-window a {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+    padding: 5px;
+    color: #000;
+    width: auto;
+    height: auto;
+}
+
+.feed-item-more-window a i {
+    font-size: 20px;
+    color: #000;
+}
+
+.feed-item-more-window a:hover {
+    background-color: #CCC;
+    border-radius: 3px;
 }
 
 .feed-item-body {

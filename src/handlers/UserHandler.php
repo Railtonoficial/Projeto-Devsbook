@@ -1,23 +1,19 @@
 <?php
-
 namespace src\handlers;
 
 use \src\models\User;
 use \src\models\UserRelation;
 use \src\handlers\PostHandler;
 
-class UserHandler
-{
-    public static function checkLogin()
-    {
-        if (!empty($_SESSION['token'])) {
+class UserHandler {
+
+    public static function checkLogin() {
+        if(!empty($_SESSION['token'])) {
             $token = $_SESSION['token'];
 
-            $data = User::select()
-                ->where('token', $token)
-                ->one();
+            $data = User::select()->where('token', $token)->one();
+            if(count($data) > 0) {
 
-            if (count($data) > 0) {
                 $loggedUser = new User();
                 $loggedUser->id = $data['id'];
                 $loggedUser->name = $data['name'];
@@ -30,31 +26,12 @@ class UserHandler
         return false;
     }
 
-    public static function updateUser($updateFields, $userId)
-    {
-        if (!empty($updateFields) && self::idExists($userId)) {
-            $update = User::update();
-
-            foreach ($updateFields as $key => $value) {
-                if (!empty(trim($value))) {
-                    // Garante que só campos válidos são atualizados
-                    $update->set($key, $value);
-                }
-            }
-
-            $update->where('id', $userId)->execute();
-            return true;
-        }
-        return false;
-    }
-
-    public static function verifyLogin($email, $password)
-    {
+    public static function verifyLogin($email, $password) {
         $user = User::select()->where('email', $email)->one();
 
-        if ($user) {
-            if (password_verify($password, $user['password'])) {
-                $token = md5(time() . rand(0, 9999) . time());
+        if($user) {
+            if(password_verify($password, $user['password'])) {
+                $token = md5(time().rand(0,9999).time());
 
                 User::update()
                     ->set('token', $token)
@@ -68,23 +45,20 @@ class UserHandler
         return false;
     }
 
-    public static function idExists($id)
-    {
+    public static function idExists($id) {
         $user = User::select()->where('id', $id)->one();
         return $user ? true : false;
     }
 
-    public static function emailExists($email)
-    {
+    public static function emailExists($email) {
         $user = User::select()->where('email', $email)->one();
         return $user ? true : false;
     }
 
-    public static function getUser($id, $full = false)
-    {
+    public static function getUser($id, $full = false) {
         $data = User::select()->where('id', $id)->one();
 
-        if ($data) {
+        if($data) {
             $user = new User();
             $user->id = $data['id'];
             $user->name = $data['name'];
@@ -95,49 +69,40 @@ class UserHandler
             $user->avatar = $data['avatar'];
             $user->cover = $data['cover'];
 
-            if ($full) {
+            if($full) {
                 $user->followers = [];
                 $user->following = [];
                 $user->photos = [];
 
-                // Pega followers
+                // followers
                 $followers = UserRelation::select()->where('user_to', $id)->get();
-                foreach ($followers as $follower) {
+                foreach($followers as $follower) {
                     $userData = User::select()->where('id', $follower['user_from'])->one();
 
                     $newUser = new User();
                     $newUser->id = $userData['id'];
                     $newUser->name = $userData['name'];
-                    $newUser->email = $userData['email'];
-                    $newUser->birthdate = $userData['birthdate'];
-                    $newUser->city = $userData['city'];
-                    $newUser->work = $userData['work'];
                     $newUser->avatar = $userData['avatar'];
-                    $newUser->cover = $userData['cover'];
 
                     $user->followers[] = $newUser;
                 }
 
-                // Pega following
+                // following
                 $following = UserRelation::select()->where('user_from', $id)->get();
-                foreach ($following as $follower) {
+                foreach($following as $follower) {
                     $userData = User::select()->where('id', $follower['user_to'])->one();
 
                     $newUser = new User();
                     $newUser->id = $userData['id'];
                     $newUser->name = $userData['name'];
-                    $newUser->email = $userData['email'];
-                    $newUser->birthdate = $userData['birthdate'];
-                    $newUser->city = $userData['city'];
-                    $newUser->work = $userData['work'];
                     $newUser->avatar = $userData['avatar'];
-                    $newUser->cover = $userData['cover'];
 
                     $user->following[] = $newUser;
                 }
 
-                // Pega photos
+                // photos
                 $user->photos = PostHandler::getPhotosFrom($id);
+
             }
 
             return $user;
@@ -146,10 +111,9 @@ class UserHandler
         return false;
     }
 
-    public static function addUser($name, $email, $password, $birthdate)
-    {
+    public static function addUser($name, $email, $password, $birthdate) {
         $hash = password_hash($password, PASSWORD_DEFAULT);
-        $token = md5(time() . rand(0, 9999) . time());
+        $token = md5(time().rand(0,9999).time());
 
         User::insert([
             'email' => $email,
@@ -162,101 +126,68 @@ class UserHandler
         return $token;
     }
 
-    public static function isFollowing($from, $to)
-    {
+    public static function isFollowing($from, $to) {
         $data = UserRelation::select()
             ->where('user_from', $from)
             ->where('user_to', $to)
             ->one();
 
-        if ($data) {
+        if($data) {
             return true;
         }
         return false;
     }
 
-    public static function follow($from, $to)
-    {
-        $exists = UserRelation::select('id')
-            ->where('user_from', $from)
-            ->where('user_to', $to)
-            ->get();
-
-        if (empty($exists)) {
-            UserRelation::insert([
-                'user_from' => $from,
-                'user_to' => $to
-            ])->execute();
-        }
+    public static function follow($from, $to) {
+        UserRelation::insert([
+            'user_from' => $from,
+            'user_to' => $to
+        ])->execute();
     }
 
-    public static function unfollow($from, $to)
-    {
+    public static function unfollow($from, $to) {
         UserRelation::delete()
             ->where('user_from', $from)
             ->where('user_to', $to)
-            ->limit(1)
             ->execute();
     }
 
-    public static function getFollowersCount($userId)
-    {
-        $result = UserRelation::select('COUNT(*) as count')
-            ->where('user_to', $userId)
-            ->get();
-
-        return $result[0]['count'] ?? 0;
-    }
-
-    public static function searchUser($term)
-    {
+    public static function searchUser($term) {
         $users = [];
 
-        $data = User::select()->where('name', 'LIKE', '%' . $term . '%')->get();
+        $data = User::select()->where('name', 'like', '%'.$term.'%')->get();
 
-        if ($data) {
-            foreach ($data as $user) {
+        if($data) {
+            foreach($data as $user) {
+
                 $newUser = new User();
                 $newUser->id = $user['id'];
                 $newUser->name = $user['name'];
                 $newUser->avatar = $user['avatar'];
 
                 $users[] = $newUser;
+
             }
         }
+
         return $users;
     }
 
+    public static function updateUser($fields, $idUser) {
+        if(count($fields) > 0) {
 
-    public static function updateData($userChanges, $userId)
-    {
-        $update = User::update();
+            $update = User::update();
 
-        foreach ($userChanges as $key => $value) {
-            if (!empty(trim($value))) {
-                $update->set($key, $value);
+            foreach($fields as $fieldName => $fieldValue) {
+                if($fieldName == 'password') {
+                    $fieldValue = password_hash($fieldValue, PASSWORD_DEFAULT);
+                }
+
+                $update->set($fieldName, $fieldValue);
             }
+
+            $update->where('id', $idUser)->execute();
+
         }
-
-        $update->where('id', $userId)->execute();
     }
-
-    public static function securityValidation($userId, $password, $newPassword)
-    {
-        $user = User::select()->where('id', $userId)->one();
-
-        if ($user) {
-            if (password_verify($password, $user['password'])) {
-                $securityData = [
-                    'password' => password_hash($newPassword, PASSWORD_DEFAULT),
-                    'token' => md5(time() . rand(0, 9999) . time())
-                ];
-
-                return $securityData;
-            }
-        }
-
-        return false;
-    }
-
 }

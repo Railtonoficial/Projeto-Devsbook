@@ -1,123 +1,86 @@
-<?= $render('header', ['loggedUser' => $loggedUser]); ?>
+<?=$render('header', ['loggedUser'=>$loggedUser]);?>
 
+    <section class="container main">
+        <?=$render('sidebar', ['activeMenu'=>'config']);?>
 
-<section class="container main">
-
-    <?= $render('sidebar', ['activeMenu' => 'config']); ?>
-
-    <div class="configOptions">
-
-        <form method="POST" action="<?= $base; ?>/config" enctype="multipart/form-data">
+        <section class="feed mt-10">
 
             <h2>Configurações</h2>
 
-            <!-- Foto de Perfil -->
-            <div class="file-container">
-                <div class="option file">
-                    <label>Alterar foto de perfil</label>
-                    <input type="file" name="avatar" id="avatarInput" accept="image/*"/>
-                    <br/>
-                    <img class="avatar-preview" id="avatarPreview" src="<?= $base; ?>/media/avatars/<?= $user->avatar; ?>">
+            <?php if(!empty($flash)): ?>
+                <div class="flash"><?php echo $flash; ?></div>
+            <?php endif; ?>
+
+            <form class="config-form" method="POST" enctype="multipart/form-data" action="<?=$base;?>/config">
+
+                <div class="image-upload-container">
+                    <label>
+                        Nova foto Perfil:<br/>
+                        <input type="file" name="avatar" /><br/>
+                        <img class="image-edit avatar" src="<?=$base;?>/media/avatars/<?=$user->avatar; ?>" />
+                    </label>
+
+                    <label>
+                        Nova Capa:<br/>
+                        <input type="file" name="cover" /><br/>
+                        <img class="image-edit cover" src="<?=$base;?>/media/covers/<?=$user->cover; ?>" />
+                    </label>
                 </div>
 
-                <div class="option file">
-                    <label>Alterar foto de capa</label>
-                    <input type="file" name="cover" id="coverInput" accept="image/*"/>
-                    <br/>
-                    <img class="cover-preview" id="coverPreview" src="<?= $base; ?>/media/covers/<?= $user->cover; ?>">
-                </div>
-            </div>
 
-            <hr>
+                <hr/>
 
-            <!-- Nome Completo -->
-            <div class="option data">
-                <label>Nome Completo</label>
-                <input type="text" name="name" value="<?= htmlspecialchars($user->name); ?>"/>
-            </div>
+                <label>
+                    Nome Completo:<br/>
+                    <input type="text" name="name" value="<?=$user->name;?>" />
+                </label>
 
-            <!-- E-mail -->
-            <div class="option data">
-                <label>E-mail</label>
-                <input type="email" name="email" value="<?= htmlspecialchars($user->email); ?>"/>
-            </div>
+                <label>
+                    Data de nascimento:<br/>
+                    <input type="text" name="birthdate" value="<?=date('d/m/Y', strtotime($user->birthdate));?>" />
+                </label>
 
-            <!-- Data de Nascimento -->
-            <div class="option data">
-                <label>Data de nascimento</label>
-                <input type="text" id="birthdate" name="birthdate"
-                       value="<?= date('d/m/Y', strtotime($user->birthdate)); ?>"/>
-            </div>
+                <label>
+                    E-mail:<br/>
+                    <input type="email" name="email" value="<?=$user->email;?>" />
+                </label>
 
-            <!-- Cidade -->
-            <div class="option data">
-                <label>Cidade</label>
-                <input type="text" name="city" value="<?= htmlspecialchars($user->city); ?>"/>
-            </div>
+                <label>
+                    Cidade:<br/>
+                    <input type="text" name="city" value="<?=$user->city;?>" />
+                </label>
 
-            <!-- Trabalho -->
-            <div class="option data">
-                <label>Trabalho</label>
-                <input type="text" name="work" value="<?= htmlspecialchars($user->work); ?>"/>
-            </div>
+                <label>
+                    Trabalho:<br/>
+                    <input type="text" name="work" value="<?=$user->work;?>" />
+                </label>
 
-            <hr>
-            <h4>Mudar senha?</h4>
+                <hr/>
 
-            <!-- Nova Senha -->
-            <div class="option data">
-                <label>Nova senha</label>
-                <input type="password" name="newPassword"/>
-            </div>
+                <label>
+                    Nova Senha:<br/>
+                    <input type="password" name="password" />
+                </label>
 
-            <!-- Senha Atual -->
-            <div class="option data">
-                <label>Senha atual para confirmar</label>
-                <input type="password" name="password"/>
-            </div>
+                <label>
+                    Confirmar Nova Senha:<br/>
+                    <input type="password" name="password_confirm" />
+                </label>
 
-            <hr>
-            <br>
+                <button class="button">Salvar</button>
 
-            <!-- Botão de envio -->
-            <button class="button" type="submit">Aplicar alterações</button>
+            </form>
 
-        </form>
+        </section>
 
-    </div>
-
-</section>
-
-<script src="https://unpkg.com/imask"></script>
-<script>
-    IMask(
-        document.getElementById('birthdate'),
-        {
-            mask: '00/00/0000'
-        }
-    );
-
-    // Função para atualizar a pré-visualização da imagem
-    function updateImagePreview(input, previewId) {
-        const file = input.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                document.getElementById(previewId).src = e.target.result;
+    </section>
+    <script src="https://unpkg.com/imask"></script>
+    <script>
+        IMask(
+            document.getElementById('birthdate'),
+            {
+                mask:'00/00/0000'
             }
-            reader.readAsDataURL(file);
-        }
-    }
-
-    // Eventos para pré-visualização do avatar
-    document.getElementById('avatarInput').addEventListener('change', function () {
-        updateImagePreview(this, 'avatarPreview');
-    });
-
-    // Eventos para pré-visualização da capa
-    document.getElementById('coverInput').addEventListener('change', function () {
-        updateImagePreview(this, 'coverPreview');
-    });
-
-
-</script>
+        );
+    </script>
+<?=$render('footer');?>
