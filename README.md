@@ -46,7 +46,7 @@ Este projeto é uma aplicação web que simula uma rede social simples, permitin
 
 1. Clone este repositório:
    ```bash
-   git clone https://github.com/SeuUsuario/Projeto-Devsbook.git
+   git clone https://github.com/railtonoficial/Projeto-Devsbook.git
    ```
 
 2. Acesse o diretório do projeto:
