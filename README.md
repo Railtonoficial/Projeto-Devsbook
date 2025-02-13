@@ -46,7 +46,7 @@ Este projeto é uma aplicação web que simula uma rede social simples, permitin
 
 1. Clone este repositório:
    ```bash
-   git clone https://github.com/railtonoficial/Projeto-Devsbook.git
+   git clone https://github.com/seu-usuario/Projeto-Devsbook.git
    ```
 
 2. Acesse o diretório do projeto:
@@ -71,4 +71,3 @@ Este projeto é uma aplicação web que simula uma rede social simples, permitin
    docker-compose exec app php artisan migrate
    ```
 
-7. Acesse a aplicação no navegador: [http://localhost](http://localhost)
